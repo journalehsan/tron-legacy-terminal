@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Legacy Console</title>
+  <title>Tron Legacy Terminal</title>
   <style>
     :root {
       color-scheme: dark;
@@ -17,23 +17,26 @@
     body {
       margin: 0;
       min-height: 100vh;
-      background: radial-gradient(circle at 20% 20%, #092939, #050914 70%);
-      color: #6fffe9;
+      background: radial-gradient(circle at 10% 20%, #071425, #03070f 65%);
+      color: #f6fff8;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 2vw;
     }
 
-    .console-shell {
-      width: min(900px, 90vw);
-      height: min(500px, 75vh);
-      border: 1px solid rgba(111, 255, 233, 0.55);
-      box-shadow: 0 0 28px rgba(58, 255, 247, 0.22);
-      background: rgba(5, 12, 32, 0.82);
-      backdrop-filter: blur(4px);
-      padding: 1.25rem;
+    .grid-hub {
+      width: min(1200px, 95vw);
+      min-height: 90vh;
+      border: 1px solid rgba(111, 255, 233, 0.6);
+      border-radius: 18px;
+      background: rgba(7, 16, 36, 0.85);
+      box-shadow: 0 0 40px rgba(58, 255, 247, 0.25);
+      padding: 1.5rem;
       display: flex;
       flex-direction: column;
+      gap: 1.25rem;
+      position: relative;
       overflow: hidden;
     }
 
@@ -44,15 +47,15 @@
       background: linear-gradient(
         rgba(0, 0, 0, 0) 0,
         rgba(0, 0, 0, 0) 48%,
-        rgba(0, 0, 0, 0.25) 50%,
+        rgba(0, 0, 0, 0.2) 50%,
         rgba(0, 0, 0, 0) 52%,
         rgba(0, 0, 0, 0) 100%
       );
       background-size: 100% 6px;
       pointer-events: none;
-      mix-blend-mode: screen;
-      opacity: 0.5;
+      opacity: 0.45;
       animation: scan 6s linear infinite;
+      mix-blend-mode: screen;
     }
 
     @keyframes scan {
@@ -64,18 +67,103 @@
       }
     }
 
-    .display {
+    .hud {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3ch;
+      font-size: 0.9rem;
+      color: #83fff1;
+    }
+
+    .hud__brand {
+      font-size: 1.1rem;
+      color: #6fffe9;
+    }
+
+    .hud__stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .hud__stats span {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .hud__stats strong {
+      color: #f2ff54;
+      font-weight: 400;
+      margin-left: 0.3rem;
+    }
+
+    .desktop {
       flex: 1;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-auto-rows: minmax(220px, 1fr);
+      gap: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .window {
+      border: 1px solid rgba(111, 255, 233, 0.4);
+      border-radius: 12px;
+      background: rgba(3, 10, 26, 0.9);
+      box-shadow: inset 0 0 30px rgba(0, 255, 231, 0.05), 0 0 20px rgba(0, 255, 247, 0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: border 0.2s ease, transform 0.2s ease;
+      position: relative;
+    }
+
+    .window.active {
+      border-color: rgba(255, 255, 255, 0.8);
+      transform: translateY(-2px);
+      box-shadow: 0 0 35px rgba(111, 255, 233, 0.25);
+    }
+
+    .window__title {
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.85rem;
+      border-bottom: 1px solid rgba(111, 255, 233, 0.2);
+      color: rgba(255, 255, 255, 0.7);
+      display: flex;
+      justify-content: space-between;
+      letter-spacing: 0.25ch;
+    }
+
+    .window__title span:last-child {
+      color: #6fffe9;
+    }
+
+    .window--terminal {
+      grid-column: span 2;
+      min-height: 260px;
+    }
+
+    @media (max-width: 860px) {
+      .window--terminal {
+        grid-column: span 1;
+      }
+    }
+
+    .terminal {
+      flex: 1;
+      padding: 1rem;
       overflow-y: auto;
-      font-size: 1rem;
-      line-height: 1.5;
-      padding-right: 0.5rem;
+      font-size: 0.95rem;
     }
 
     .line {
       display: flex;
       gap: 0.5rem;
-      margin-bottom: 0.2rem;
+      margin-bottom: 0.15rem;
     }
 
     .prompt {
@@ -83,28 +171,30 @@
     }
 
     .input-area {
+      padding: 0.75rem 1rem 1.1rem;
       display: flex;
-      gap: 0.75rem;
-      margin-top: 1rem;
+      gap: 0.65rem;
       align-items: center;
+      border-top: 1px solid rgba(111, 255, 233, 0.18);
+      background: rgba(10, 26, 44, 0.7);
     }
 
     .input-area input {
       flex: 1;
       background: transparent;
       border: none;
-      border-bottom: 1px solid rgba(111, 255, 233, 0.5);
+      border-bottom: 1px solid rgba(111, 255, 233, 0.4);
       color: inherit;
-      padding: 0.35rem 0;
       font: inherit;
+      padding: 0.4rem 0;
       outline: none;
     }
 
     .input-area button {
       background: rgba(0, 255, 255, 0.08);
       color: inherit;
-      border: 1px solid rgba(111, 255, 233, 0.4);
-      padding: 0.4rem 1rem;
+      border: 1px solid rgba(111, 255, 233, 0.5);
+      padding: 0.35rem 1.1rem;
       font: inherit;
       cursor: pointer;
       transition: background 0.2s ease;
@@ -115,39 +205,257 @@
       background: rgba(0, 255, 255, 0.2);
     }
 
-    .cursor {
-      display: inline-block;
-      width: 0.65ch;
-      background: #6fffe9;
-      animation: blink 1s steps(2) infinite;
+    .htop {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      gap: 0.8rem;
+      font-size: 0.85rem;
     }
 
-    @keyframes blink {
-      0%,
-      50% {
-        opacity: 1;
-      }
-      50.01%,
-      100% {
-        opacity: 0;
-      }
+    .htop__gauges {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.8rem;
+    }
+
+    .gauge {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 999px;
+      padding: 0.15rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gauge span {
+      display: block;
+      height: 0.6rem;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #4effef, #ffb347);
+      width: 0;
+      transition: width 0.4s ease;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 0.2rem 0.3rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    th {
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      letter-spacing: 0.3ch;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .meter {
+      width: 100%;
+      height: 0.4rem;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .meter span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #6fffe9, #ff4ecd);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    .viz {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      gap: 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .viz__grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.6rem;
+      flex: 1;
+    }
+
+    .node {
+      border: 1px solid rgba(111, 255, 233, 0.3);
+      border-radius: 10px;
+      padding: 0.6rem;
+      background: rgba(9, 21, 42, 0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .node__status {
+      font-size: 0.7rem;
+      letter-spacing: 0.3ch;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .node__pulse {
+      height: 0.3rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .node__pulse span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #1de5ff, #ff5df0);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    .viz__log {
+      min-height: 4rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 0.6rem;
+      background: rgba(3, 12, 28, 0.8);
+      overflow-y: auto;
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+
+    .keyboard {
+      position: relative;
+      z-index: 1;
+      border: 1px solid rgba(111, 255, 233, 0.3);
+      border-radius: 14px;
+      padding: 0.75rem;
+      background: rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .keyboard__row {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .key {
+      flex: 1;
+      text-transform: uppercase;
+      border: 1px solid rgba(111, 255, 233, 0.4);
+      border-radius: 8px;
+      padding: 0.35rem 0.4rem;
+      background: rgba(2, 12, 25, 0.8);
+      color: #e5ffff;
+      font: inherit;
+      letter-spacing: 0.15ch;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+
+    .key.key--ghost {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .key.key--wide {
+      flex: 2;
+    }
+
+    .key.key--space {
+      flex: 5;
+    }
+
+    .key:hover,
+    .key:focus-visible {
+      background: rgba(0, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .key:active {
+      transform: translateY(1px);
     }
   </style>
 </head>
 <body>
-  <div class="console-shell scanline">
-    <div class="display" id="display"></div>
-    <div class="input-area">
-      <span class="prompt">$</span>
-      <input id="command" type="text" autocomplete="off" spellcheck="false" />
-      <button id="submit">SEND</button>
-    </div>
+  <div class="grid-hub scanline">
+    <header class="hud">
+      <div class="hud__brand">ENCOM GRID OPS</div>
+      <div class="hud__stats">
+        <span>uptime<strong id="uptime">00:00:00</strong></span>
+        <span>grid sync<strong>99.982%</strong></span>
+        <span>latency<strong>0.4ms</strong></span>
+      </div>
+    </header>
+
+    <main class="desktop">
+      <section class="window window--terminal active" data-window="terminal">
+        <header class="window__title">
+          <span>/dev/console</span>
+          <span>stack λ01</span>
+        </header>
+        <div class="terminal" id="terminal-display"></div>
+        <div class="input-area">
+          <span class="prompt">$</span>
+          <input id="command-input" type="text" autocomplete="off" spellcheck="false" />
+          <button id="submit-command">SEND</button>
+        </div>
+      </section>
+
+      <section class="window window--htop" data-window="htop">
+        <header class="window__title">
+          <span>htop</span>
+          <span>proc monitor</span>
+        </header>
+        <div class="htop">
+          <div class="htop__gauges">
+            <div class="gauge"><span id="cpu-gauge"></span></div>
+            <div class="gauge"><span id="mem-gauge"></span></div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>PID</th>
+                <th>PROC</th>
+                <th>CPU</th>
+                <th>MEM</th>
+              </tr>
+            </thead>
+            <tbody id="htop-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="window window--viz" data-window="viz">
+        <header class="window__title">
+          <span>neon mesh</span>
+          <span>telemetry</span>
+        </header>
+        <div class="viz">
+          <div class="viz__grid" id="viz-grid"></div>
+          <div class="viz__log" id="viz-log"></div>
+        </div>
+      </section>
+    </main>
+
+    <section class="keyboard" id="keyboard" aria-label="virtual keyboard"></section>
   </div>
 
   <script>
-    const display = document.getElementById("display");
-    const commandInput = document.getElementById("command");
-    const submit = document.getElementById("submit");
+    const terminalDisplay = document.getElementById("terminal-display");
+    const commandInput = document.getElementById("command-input");
+    const submitButton = document.getElementById("submit-command");
+    const keyboard = document.getElementById("keyboard");
+    const uptimeLabel = document.getElementById("uptime");
 
     const writeLine = (text, isSystem = false) => {
       const line = document.createElement("div");
@@ -156,22 +464,23 @@
         <span class="prompt">${isSystem ? "λ" : "$"}</span>
         <span>${text}</span>
       `;
-      display.appendChild(line);
-      display.scrollTop = display.scrollHeight;
+      terminalDisplay.appendChild(line);
+      terminalDisplay.scrollTop = terminalDisplay.scrollHeight;
     };
 
-    const systemBoot = [
-      "BOOTSTRAP GRID ONLINE",
-      "TRON LINK NEGOTIATED",
-      "QUANTUM BUS SATURATED",
-      "READY"
+    const bootSequence = [
+      "GRID CORE ONLINE",
+      "DISC PROTOCOL NEGOTIATED",
+      "ISO PRESENCE ACKNOWLEDGED",
+      "PROCESSOR RAILS NOMINAL",
+      "LEGACY TERMINAL READY"
     ];
 
-    systemBoot.forEach((line, index) => {
-      setTimeout(() => writeLine(line, true), index * 350);
+    bootSequence.forEach((line, index) => {
+      setTimeout(() => writeLine(line, true), index * 320);
     });
 
-    const handleInput = () => {
+    const handleCommand = () => {
       const value = commandInput.value.trim();
       if (!value) {
         return;
@@ -179,19 +488,239 @@
       writeLine(value);
       setTimeout(() => {
         writeLine(`processed » ${value}`, true);
-      }, 250);
+      }, 280);
       commandInput.value = "";
       commandInput.focus();
     };
 
-    submit.addEventListener("click", handleInput);
+    submitButton.addEventListener("click", handleCommand);
     commandInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
-        handleInput();
+        handleCommand();
       }
     });
 
     commandInput.focus();
+
+    const windows = document.querySelectorAll(".window");
+    windows.forEach((panel) => {
+      panel.addEventListener("click", () => {
+        windows.forEach((win) => win.classList.remove("active"));
+        panel.classList.add("active");
+      });
+    });
+
+    const keyboardLayout = [
+      [
+        { label: "esc", value: "", ghost: true },
+        { label: "1" },
+        { label: "2" },
+        { label: "3" },
+        { label: "4" },
+        { label: "5" },
+        { label: "6" },
+        { label: "7" },
+        { label: "8" },
+        { label: "9" },
+        { label: "0" },
+        { label: "-" },
+        { label: "=" },
+        { label: "⌫", value: "backspace" }
+      ],
+      [
+        { label: "tab", value: "\t", ghost: true },
+        { label: "q" },
+        { label: "w" },
+        { label: "e" },
+        { label: "r" },
+        { label: "t" },
+        { label: "y" },
+        { label: "u" },
+        { label: "i" },
+        { label: "o" },
+        { label: "p" },
+        { label: "[" },
+        { label: "]" },
+        { label: "\\" }
+      ],
+      [
+        { label: "ctrl", value: "", ghost: true },
+        { label: "a" },
+        { label: "s" },
+        { label: "d" },
+        { label: "f" },
+        { label: "g" },
+        { label: "h" },
+        { label: "j" },
+        { label: "k" },
+        { label: "l" },
+        { label: ";" },
+        { label: "'" },
+        { label: "enter", value: "enter", wide: true }
+      ],
+      [
+        { label: "shift", value: "", ghost: true },
+        { label: "z" },
+        { label: "x" },
+        { label: "c" },
+        { label: "v" },
+        { label: "b" },
+        { label: "n" },
+        { label: "m" },
+        { label: "," },
+        { label: "." },
+        { label: "/" },
+        { label: "space", value: "space", space: true }
+      ]
+    ];
+
+    const renderKeyboard = () => {
+      keyboardLayout.forEach((rowLayout) => {
+        const row = document.createElement("div");
+        row.className = "keyboard__row";
+
+        rowLayout.forEach((keyDef) => {
+          const key = document.createElement("button");
+          key.className = "key";
+          if (keyDef.ghost) key.classList.add("key--ghost");
+          if (keyDef.wide) key.classList.add("key--wide");
+          if (keyDef.space) key.classList.add("key--space");
+          key.dataset.value = keyDef.value ?? keyDef.label;
+          key.textContent = keyDef.label;
+
+          if (!keyDef.ghost) {
+            key.addEventListener("click", () => handleVirtualKey(key.dataset.value));
+          }
+
+          row.appendChild(key);
+        });
+
+        keyboard.appendChild(row);
+      });
+    };
+
+    const handleVirtualKey = (value) => {
+      switch (value) {
+        case "enter":
+          handleCommand();
+          break;
+        case "backspace":
+          commandInput.value = commandInput.value.slice(0, -1);
+          commandInput.focus();
+          break;
+        case "space":
+          commandInput.value += " ";
+          commandInput.focus();
+          break;
+        default:
+          commandInput.value += value;
+          commandInput.focus();
+      }
+    };
+
+    renderKeyboard();
+
+    const cpuGauge = document.getElementById("cpu-gauge");
+    const memGauge = document.getElementById("mem-gauge");
+    const htopBody = document.getElementById("htop-body");
+
+    const processes = [
+      { name: "gridd", pid: 3021 },
+      { name: "render-daemon", pid: 8421 },
+      { name: "lightcycle", pid: 1888 },
+      { name: "io-mapper", pid: 443 },
+      { name: "memcache", pid: 772 },
+      { name: "solar-sailor", pid: 912 },
+      { name: "recognizer", pid: 667 }
+    ];
+
+    const randomUsage = () => Number((Math.random() * 100).toFixed(1));
+
+    const updateHtop = () => {
+      const cpu = randomUsage();
+      const mem = randomUsage();
+      cpuGauge.style.width = `${cpu}%`;
+      memGauge.style.width = `${mem}%`;
+
+      htopBody.innerHTML = "";
+      processes.forEach((proc) => {
+        const cpuLoad = randomUsage();
+        const memLoad = randomUsage();
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${proc.pid}</td>
+          <td>${proc.name}</td>
+          <td>
+            <div class="meter"><span style="width:${cpuLoad}%"></span></div>
+            ${cpuLoad}%
+          </td>
+          <td>
+            <div class="meter"><span style="width:${memLoad}%"></span></div>
+            ${memLoad}%
+          </td>
+        `;
+        htopBody.appendChild(row);
+      });
+    };
+
+    updateHtop();
+    setInterval(updateHtop, 2000);
+
+    const vizGrid = document.getElementById("viz-grid");
+    const vizLog = document.getElementById("viz-log");
+
+    const gridNodes = Array.from({ length: 9 }).map((_, index) => ({
+      id: `NODE-${index + 1}`,
+      energy: 0
+    }));
+
+    gridNodes.forEach((node) => {
+      const element = document.createElement("div");
+      element.className = "node";
+      element.innerHTML = `
+        <div>${node.id}</div>
+        <div class="node__status">standby</div>
+        <div class="node__pulse"><span></span></div>
+      `;
+      node.element = element;
+      node.status = element.querySelector(".node__status");
+      node.pulse = element.querySelector(".node__pulse span");
+      vizGrid.appendChild(element);
+    });
+
+    const logEvent = (text) => {
+      const timestamp = new Date().toLocaleTimeString("en-US", { hour12: false });
+      const line = document.createElement("div");
+      line.textContent = `[${timestamp}] ${text}`;
+      vizLog.prepend(line);
+      while (vizLog.childElementCount > 6) {
+        vizLog.removeChild(vizLog.lastChild);
+      }
+    };
+
+    const pulseGrid = () => {
+      const node = gridNodes[Math.floor(Math.random() * gridNodes.length)];
+      const energy = randomUsage();
+      node.energy = energy;
+      node.pulse.style.width = `${energy}%`;
+      node.status.textContent = energy > 70 ? "overdrive" : energy > 40 ? "sync" : "idle";
+      logEvent(`${node.id} energy ${energy.toFixed(1)}%`);
+    };
+
+    setInterval(pulseGrid, 1500);
+
+    const startTime = Date.now();
+    const updateUptime = () => {
+      const elapsed = Date.now() - startTime;
+      const seconds = Math.floor(elapsed / 1000);
+      const hrs = String(Math.floor(seconds / 3600)).padStart(2, "0");
+      const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+      const secs = String(seconds % 60).padStart(2, "0");
+      uptimeLabel.textContent = `${hrs}:${mins}:${secs}`;
+    };
+
+    updateUptime();
+    setInterval(updateUptime, 1000);
   </script>
 </body>
 </html>
