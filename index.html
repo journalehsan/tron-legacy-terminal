@@ -798,10 +798,95 @@
           - scan : Network scan
           - history : Show command history
           - clear : Clear terminal
+          - whoami : Show current user
+          - uname -a : Show system info
+          - login -n [user] : Login as user
+          - /bin/history : Show command history from movie
+          - cd [path] : Change directory
+          - vi [file] : Edit file
+          - make : Compile project
+          - make install : Install project
+          - ps -a -x -u : Show processes
+          - kill -9 [pid] : Kill process
+          - cat [file] : Display file contents
+          - touch [file] : Create file
         `.trim();
       } else if (cmd.startsWith('clear')) {
         terminalDisplay.innerHTML = '';
         return 'Terminal cleared';
+      } else if (cmd.startsWith('whoami')) {
+        return 'flynn';
+      } else if (cmd.startsWith('uname -a')) {
+        return 'SolarOS 4.0.1 Generic_50203-02 sun4m i386 Unknown.Unknown';
+      } else if (cmd.startsWith('login -n')) {
+        const loginName = cmd.substring(9).trim(); // Extract name after 'login -n '
+        if (loginName === 'root') {
+          // Simulate the bug from the movie
+          writeResult('Login', 'Login incorrect', 'error');
+          setTimeout(() => {
+            writeResult('Login', 'login:', 'info');
+          }, 500);
+          return 'Try login -n backdoor';
+        } else if (loginName === 'backdoor') {
+          return 'No Home directory specified in password file!';
+        }
+        return 'Login incorrect';
+      } else if (cmd.startsWith('login with home=')) {
+        return 'Login successful with home=/';
+      } else if (cmd.startsWith('/bin/history')) {
+        let historyOutput = '     488  cd /opt/LLL/controller/laser/<br>';
+        historyOutput += '     489  vi LLLSDLaserControl.c<br>';
+        historyOutput += '     490  make<br>';
+        historyOutput += '     491  make install<br>';
+        historyOutput += '     492  ./sanity_check<br>';
+        historyOutput += '     493  ./configure -o test.cfs<br>';
+        historyOutput += '     494  vi test.cfs<br>';
+        historyOutput += '     495  vi ~/last_will_and_testment.txt<br>';
+        historyOutput += '     496  cat /proc/meminfo<br>';
+        historyOutput += '     497  ps -a -x -u<br>';
+        historyOutput += '     498  kill -9 2207<br>';
+        historyOutput += '     499  ps -a -x -u<br>';
+        historyOutput += '     500  touch /opt/LLL/run/ok<br>';
+        historyOutput += '     501  LLSDLaserControl -ok 1<br>';
+        historyOutput += '     502  exit<br>';
+        return historyOutput;
+      } else if (cmd.startsWith('cd /opt/LLL/controller/laser/')) {
+        return 'Changed directory to /opt/LLL/controller/laser/';
+      } else if (cmd.startsWith('vi LLLSDLaserControl.c')) {
+        return 'Editing LLLSDLaserControl.c... Press ESC then :q! to exit';
+      } else if (cmd.startsWith('make')) {
+        return 'Compiling...<br>gcc -c LLLSDLaserControl.c<br>gcc -o LLSDLaserControl LLLSDLaserControl.o<br>make: *** [all] Error 1';
+      } else if (cmd.startsWith('make install')) {
+        return 'Installing...<br>cp LLSDLaserControl /usr/local/bin/<br>chmod +x /usr/local/bin/LLSDLaserControl';
+      } else if (cmd.startsWith('./sanity_check')) {
+        return 'Sanity check passed: All systems nominal';
+      } else if (cmd.startsWith('./configure -o test.cfs')) {
+        return 'Configuring test.cfs... Done';
+      } else if (cmd.startsWith('vi test.cfs')) {
+        return 'Editing test.cfs... Press ESC then :q! to exit';
+      } else if (cmd.startsWith('vi ~/last_will_and_testment.txt')) {
+        return 'Opening last will and testament... Press ESC then :q! to exit';
+      } else if (cmd.startsWith('cat /proc/meminfo')) {
+        return `MemTotal:        8192000 kB
+MemFree:          512000 kB
+MemAvailable:    2048000 kB
+Buffers:          256000 kB
+Cached:          3072000 kB
+SwapTotal:       2048000 kB
+SwapFree:        2048000 kB`;
+      } else if (cmd.startsWith('ps -a -x -u')) {
+        return `  PID TTY      TIME CMD
+ 2205 ?    00:00:00 bash
+ 2206 ?    00:00:00 sshd
+ 2207 ?    00:00:15 LLSDLaserControl
+ 2208 ?    00:00:01 cron
+ 2209 ?    00:00:02 syslogd`;
+      } else if (cmd.startsWith('kill -9 2207')) {
+        return 'Killed process 2207';
+      } else if (cmd.startsWith('touch /opt/LLL/run/ok')) {
+        return 'Created /opt/LLL/run/ok';
+      } else if (cmd.startsWith('LLSDLaserControl -ok 1')) {
+        return 'Laser Control initialized successfully';
       } else {
         return `Command not found: ${cmd}. Type 'help' for available commands.`;
       }
