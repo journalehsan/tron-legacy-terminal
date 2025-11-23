@@ -886,11 +886,198 @@ SwapFree:        2048000 kB`;
       } else if (cmd.startsWith('touch /opt/LLL/run/ok')) {
         return 'Created /opt/LLL/run/ok';
       } else if (cmd.startsWith('LLSDLaserControl -ok 1')) {
+        // Show dialog asking "Aperture Clear?" with Yes/No buttons
+        showApertureDialog();
         return 'Laser Control initialized successfully';
       } else {
         return `Command not found: ${cmd}. Type 'help' for available commands.`;
       }
     };
+
+    // Function to show aperture dialog
+    function showApertureDialog() {
+      // Create modal dialog
+      const dialog = document.createElement('div');
+      dialog.className = 'aperture-dialog';
+      dialog.innerHTML = `
+        <div class="dialog-content">
+          <h3>Aperture Clear?</h3>
+          <div class="dialog-buttons">
+            <button id="no-button" class="dialog-button">No</button>
+            <button id="yes-button" class="dialog-button">Yes</button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(dialog);
+
+      // Add styles for the dialog
+      const style = document.createElement('style');
+      style.id = 'dialog-styles';
+      style.textContent = `
+        .aperture-dialog {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.8);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          backdrop-filter: blur(5px);
+        }
+
+        .dialog-content {
+          background: rgba(7, 16, 36, 0.95);
+          border: 1px solid rgba(111, 255, 233, 0.6);
+          border-radius: 12px;
+          padding: 2rem;
+          text-align: center;
+          box-shadow: 0 0 40px rgba(58, 255, 247, 0.4);
+          min-width: 300px;
+        }
+
+        .dialog-content h3 {
+          color: #6fffe9;
+          margin-top: 0;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+        }
+
+        .dialog-buttons {
+          display: flex;
+          gap: 1rem;
+          justify-content: center;
+          margin-top: 1.5rem;
+        }
+
+        .dialog-button {
+          background: rgba(0, 255, 255, 0.08);
+          color: #e5ffff;
+          border: 1px solid rgba(111, 255, 233, 0.5);
+          padding: 0.5rem 1.5rem;
+          font: inherit;
+          cursor: pointer;
+          border-radius: 6px;
+          transition: all 0.2s;
+        }
+
+        .dialog-button:hover {
+          background: rgba(0, 255, 255, 0.2);
+          transform: translateY(-2px);
+        }
+
+        .dialog-button:active {
+          transform: translateY(1px);
+        }
+      `;
+
+      document.head.appendChild(style);
+
+      // Add event listeners to buttons
+      document.getElementById('no-button').addEventListener('click', () => {
+        document.body.removeChild(dialog);
+        document.head.removeChild(style);
+      });
+
+      document.getElementById('yes-button').addEventListener('click', () => {
+        // Remove dialog and initiate portal effect
+        document.body.removeChild(dialog);
+        document.head.removeChild(style);
+        initiateTronPortalEffect();
+      });
+    }
+
+    // Function to initiate the Tron portal effect
+    function initiateTronPortalEffect() {
+      // Create portal effect element
+      const portalEffect = document.createElement('div');
+      portalEffect.id = 'portal-effect';
+      portalEffect.style.position = 'fixed';
+      portalEffect.style.top = '0';
+      portalEffect.style.left = '0';
+      portalEffect.style.width = '100%';
+      portalEffect.style.height = '100%';
+      portalEffect.style.background = 'radial-gradient(circle, rgba(0,255,255,0.8) 0%, rgba(0,100,255,0.6) 40%, rgba(0,0,50,0.9) 100%)';
+      portalEffect.style.zIndex = '9999';
+      portalEffect.style.display = 'flex';
+      portalEffect.style.alignItems = 'center';
+      portalEffect.style.justifyContent = 'center';
+      portalEffect.style.opacity = '0';
+      portalEffect.style.transition = 'opacity 2s ease-in-out';
+
+      // Create portal message
+      const portalMessage = document.createElement('div');
+      portalMessage.textContent = 'ACCESSING TRON UNIVERSE...';
+      portalMessage.style.color = 'white';
+      portalMessage.style.fontSize = '2rem';
+      portalMessage.style.textAlign = 'center';
+      portalMessage.style.textTransform = 'uppercase';
+      portalMessage.style.letterSpacing = '8px';
+      portalMessage.style.fontFamily = 'monospace';
+      portalMessage.style.textShadow = '0 0 10px #00ffff, 0 0 20px #00ffff';
+      portalMessage.style.animation = 'pulse 1.5s infinite alternate';
+
+      portalEffect.appendChild(portalMessage);
+      document.body.appendChild(portalEffect);
+
+      // Add pulse animation for portal message
+      const animationStyle = document.createElement('style');
+      animationStyle.textContent = `
+        @keyframes pulse {
+          from { opacity: 0.6; }
+          to { opacity: 1; }
+        }
+      `;
+      document.head.appendChild(animationStyle);
+
+      // Fade in the portal effect
+      setTimeout(() => {
+        portalEffect.style.opacity = '1';
+      }, 10);
+
+      // After a delay, simulate entering the Tron universe
+      setTimeout(() => {
+        // Add scanlines for Tron effect
+        const scanlines = document.createElement('div');
+        scanlines.style.position = 'fixed';
+        scanlines.style.top = '0';
+        scanlines.style.left = '0';
+        scanlines.style.width = '100%';
+        scanlines.style.height = '100%';
+        scanlines.style.background = 'repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15) 1px, transparent 1px, transparent 2px)';
+        scanlines.style.pointerEvents = 'none';
+        scanlines.style.zIndex = '10000';
+        document.body.appendChild(scanlines);
+
+        // Change background to Tron grid
+        document.body.style.background = 'black';
+        document.body.style.backgroundImage = 'linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px)';
+        document.body.style.backgroundSize = '30px 30px';
+
+        // Change all colors to Tron theme
+        const styleUpdate = document.createElement('style');
+        styleUpdate.textContent = `
+          body * {
+            color: #00ffff !important;
+            border-color: #00ffff !important;
+            box-shadow: 0 0 10px #00ffff !important;
+          }
+        `;
+        document.head.appendChild(styleUpdate);
+
+        // After a few seconds, add the final message
+        setTimeout(() => {
+          portalMessage.textContent = 'WELCOME TO THE TRON UNIVERSE';
+          portalMessage.style.fontSize = '1.5rem';
+          portalMessage.style.animation = 'none';
+          portalMessage.style.textShadow = '0 0 20px #00ffff';
+        }, 3000);
+
+      }, 2000);
+    }
 
     submitButton.addEventListener("click", handleCommand);
     commandInput.addEventListener("keydown", (event) => {
