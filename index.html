@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tron Legacy Terminal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       color-scheme: dark;
@@ -23,6 +24,8 @@
       align-items: center;
       justify-content: center;
       padding: 2vw;
+      background-attachment: fixed;
+      overflow-x: hidden;
     }
 
     .grid-hub {
@@ -38,6 +41,7 @@
       gap: 1.25rem;
       position: relative;
       overflow: hidden;
+      backdrop-filter: blur(10px);
     }
 
     .scanline::before {
@@ -58,6 +62,21 @@
       mix-blend-mode: screen;
     }
 
+    .grid-pattern::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        linear-gradient(rgba(111, 255, 233, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(111, 255, 233, 0.05) 1px, transparent 1px);
+      background-size: 30px 30px;
+      pointer-events: none;
+      z-index: -1;
+    }
+
     @keyframes scan {
       0% {
         transform: translateY(-100%);
@@ -76,11 +95,16 @@
       letter-spacing: 0.3ch;
       font-size: 0.9rem;
       color: #83fff1;
+      position: relative;
+      z-index: 2;
     }
 
     .hud__brand {
       font-size: 1.1rem;
       color: #6fffe9;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
     .hud__stats {
@@ -91,6 +115,9 @@
 
     .hud__stats span {
       color: rgba(255, 255, 255, 0.6);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
     }
 
     .hud__stats strong {
@@ -119,12 +146,13 @@
       overflow: hidden;
       transition: border 0.2s ease, transform 0.2s ease;
       position: relative;
+      min-height: 260px;
     }
 
     .window.active {
       border-color: rgba(255, 255, 255, 0.8);
       transform: translateY(-2px);
-      box-shadow: 0 0 35px rgba(111, 255, 233, 0.25);
+      box-shadow: 0 0 35px rgba(111, 255, 233, 0.25), 0 0 60px rgba(0, 255, 247, 0.2);
     }
 
     .window__title {
@@ -136,6 +164,7 @@
       display: flex;
       justify-content: space-between;
       letter-spacing: 0.25ch;
+      background: rgba(0, 0, 0, 0.2);
     }
 
     .window__title span:last-child {
@@ -144,7 +173,7 @@
 
     .window--terminal {
       grid-column: span 2;
-      min-height: 260px;
+      min-height: 300px;
     }
 
     @media (max-width: 860px) {
@@ -158,16 +187,81 @@
       padding: 1rem;
       overflow-y: auto;
       font-size: 0.95rem;
+      background: rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    /* Enhanced terminal output styling */
+    .terminal-output {
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      border-left: 2px solid #00f2ff;
+      margin-bottom: 0.5rem;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .line {
       display: flex;
       gap: 0.5rem;
       margin-bottom: 0.15rem;
+      animation: slideIn 0.2s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
     }
 
     .prompt {
       color: #00f2ff;
+      flex-shrink: 0;
+    }
+
+    .cmd {
+      color: #6fffe9;
+      font-weight: bold;
+    }
+
+    .result {
+      color: #e5ff99;
+      margin-top: 0.2rem;
+      padding-left: 1rem;
+    }
+
+    .error {
+      color: #ff6b6b;
+    }
+
+    .success {
+      color: #51cf66;
+    }
+
+    .info {
+      color: #74c0fc;
+    }
+
+    .warning {
+      color: #fcc419;
+    }
+
+    .history-item {
+      margin: 0.2rem 0;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.03);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .history-item:hover {
+      background: rgba(255, 255, 255, 0.08);
     }
 
     .input-area {
@@ -177,6 +271,7 @@
       align-items: center;
       border-top: 1px solid rgba(111, 255, 233, 0.18);
       background: rgba(10, 26, 44, 0.7);
+      position: relative;
     }
 
     .input-area input {
@@ -188,6 +283,11 @@
       font: inherit;
       padding: 0.4rem 0;
       outline: none;
+      transition: border-bottom 0.2s;
+    }
+
+    .input-area input:focus {
+      border-bottom: 1px solid #6fffe9;
     }
 
     .input-area button {
@@ -197,12 +297,17 @@
       padding: 0.35rem 1.1rem;
       font: inherit;
       cursor: pointer;
-      transition: background 0.2s ease;
+      transition: background 0.2s ease, transform 0.1s;
     }
 
     .input-area button:hover,
     .input-area button:focus-visible {
       background: rgba(0, 255, 255, 0.2);
+      transform: scale(1.05);
+    }
+
+    .input-area button:active {
+      transform: scale(0.98);
     }
 
     .htop {
@@ -211,7 +316,6 @@
       flex-direction: column;
       padding: 1rem;
       gap: 0.8rem;
-      font-size: 0.85rem;
     }
 
     .htop__gauges {
@@ -226,11 +330,12 @@
       padding: 0.15rem;
       position: relative;
       overflow: hidden;
+      height: 1.2rem;
     }
 
     .gauge span {
       display: block;
-      height: 0.6rem;
+      height: 100%;
       border-radius: inherit;
       background: linear-gradient(90deg, #4effef, #ffb347);
       width: 0;
@@ -296,6 +401,11 @@
       display: flex;
       flex-direction: column;
       gap: 0.3rem;
+      transition: transform 0.2s;
+    }
+
+    .node:hover {
+      transform: scale(1.03);
     }
 
     .node__status {
@@ -341,6 +451,7 @@
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
+      margin-top: 1rem;
     }
 
     .keyboard__row {
@@ -359,7 +470,24 @@
       font: inherit;
       letter-spacing: 0.15ch;
       cursor: pointer;
-      transition: background 0.15s ease, transform 0.15s ease;
+      transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .key::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(111, 255, 233, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .key:hover::after {
+      left: 100%;
     }
 
     .key.key--ghost {
@@ -379,10 +507,89 @@
     .key:focus-visible {
       background: rgba(0, 255, 255, 0.2);
       transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0, 255, 255, 0.3);
     }
 
     .key:active {
       transform: translateY(1px);
+    }
+
+    /* Enhanced terminal results */
+    .result-container {
+      margin: 0.5rem 0;
+      padding: 0.5rem 0.8rem;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.2);
+      border-left: 3px solid #6fffe9;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: #83fff1;
+      margin-bottom: 0.3rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2ch;
+    }
+
+    .result-content {
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .result-content pre {
+      margin: 0.5rem 0 0;
+      padding: 0.5rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+    }
+
+    .command-history {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border-left: 1px solid rgba(111, 255, 233, 0.3);
+      padding: 0.5rem;
+      overflow-y: auto;
+      z-index: 10;
+      display: none;
+    }
+
+    .show-history .command-history {
+      display: block;
+    }
+
+    .history-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2ch;
+      margin-bottom: 0.5rem;
+      color: #6fffe9;
+      border-bottom: 1px solid rgba(111, 255, 233, 0.3);
+      padding-bottom: 0.3rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+      .window--terminal {
+        grid-column: span 2;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .window--terminal {
+        grid-column: span 1;
+      }
+
+      .desktop {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -403,7 +610,12 @@
           <span>/dev/console</span>
           <span>stack λ01</span>
         </header>
-        <div class="terminal" id="terminal-display"></div>
+        <div class="terminal" id="terminal-display">
+          <div class="command-history" id="command-history">
+            <div class="history-title">Command History</div>
+            <div id="history-items"></div>
+          </div>
+        </div>
         <div class="input-area">
           <span class="prompt">$</span>
           <input id="command-input" type="text" autocomplete="off" spellcheck="false" />
@@ -456,15 +668,56 @@
     const submitButton = document.getElementById("submit-command");
     const keyboard = document.getElementById("keyboard");
     const uptimeLabel = document.getElementById("uptime");
+    const historyItems = document.getElementById("history-items");
 
-    const writeLine = (text, isSystem = false) => {
+    // Store command history
+    const commandHistory = [];
+    let historyIndex = -1;
+
+    // Enhanced writeLine function with formatting
+    const writeLine = (text, isSystem = false, type = null) => {
       const line = document.createElement("div");
       line.className = "line";
+      if (type) line.classList.add(type);
+
+      // Format text with syntax highlighting
+      let formattedText = text;
+      if (type === 'result') {
+        // Format JSON results
+        if (text.startsWith('{') || text.startsWith('[')) {
+          try {
+            const obj = JSON.parse(text);
+            formattedText = '<pre>' + JSON.stringify(obj, null, 2) + '</pre>';
+          } catch (e) {
+            // If not JSON, continue with original text
+          }
+        }
+      }
+
       line.innerHTML = `
         <span class="prompt">${isSystem ? "λ" : "$"}</span>
-        <span>${text}</span>
+        <span>${formattedText}</span>
       `;
       terminalDisplay.appendChild(line);
+      terminalDisplay.scrollTop = terminalDisplay.scrollHeight;
+    };
+
+    // Enhanced result display function
+    const writeResult = (title, content, type = 'info') => {
+      const resultContainer = document.createElement("div");
+      resultContainer.className = "result-container";
+
+      resultContainer.innerHTML = `
+        <div class="result-header">
+          <span>${title}</span>
+          <span>${new Date().toLocaleTimeString()}</span>
+        </div>
+        <div class="result-content ${type}">
+          ${content}
+        </div>
+      `;
+
+      terminalDisplay.appendChild(resultContainer);
       terminalDisplay.scrollTop = terminalDisplay.scrollHeight;
     };
 
@@ -480,27 +733,127 @@
       setTimeout(() => writeLine(line, true), index * 320);
     });
 
+    // Enhanced command processing
     const handleCommand = () => {
       const value = commandInput.value.trim();
       if (!value) {
         return;
       }
-      writeLine(value);
+
+      // Add to command history
+      commandHistory.unshift(value);
+      if (commandHistory.length > 20) commandHistory.pop(); // Limit history
+      updateCommandHistory();
+
+      writeLine(value, false, 'cmd');
+
       setTimeout(() => {
-        writeLine(`processed » ${value}`, true);
+        // Process different command types
+        const result = processCommand(value);
+        writeResult('Command Result', result, 'success');
       }, 280);
+
       commandInput.value = "";
       commandInput.focus();
+    };
+
+    // Enhanced command processing with multiple command types
+    const processCommand = (cmd) => {
+      cmd = cmd.toLowerCase();
+
+      if (cmd.startsWith('echo')) {
+        return cmd.substring(5).trim(); // Return everything after 'echo '
+      } else if (cmd.startsWith('date')) {
+        return new Date().toString();
+      } else if (cmd.startsWith('time')) {
+        return new Date().toLocaleTimeString();
+      } else if (cmd.startsWith('weather')) {
+        return `Current weather: Clear, 22°C, Humidity: 65%`;
+      } else if (cmd.startsWith('sysinfo')) {
+        return `
+          System: ENCOM OS v12.7
+          CPU: 8-core Tron Processor @ 4.2GHz
+          Memory: 16GB DDR4
+          GPU: Light Cycle Graphics Pro
+          OS: Tron Legacy Edition
+        `.trim();
+      } else if (cmd.startsWith('scan')) {
+        return `
+          Network scan complete:
+          - Hosts discovered: 24
+          - Active connections: 7
+          - Firewall status: Active
+          - Security level: Maximum
+        `.trim();
+      } else if (cmd.startsWith('history')) {
+        return commandHistory.join('<br>');
+      } else if (cmd.startsWith('help')) {
+        return `
+          Available commands:
+          - echo [text] : Display text
+          - date : Show current date
+          - time : Show current time
+          - weather : Show weather info
+          - sysinfo : Show system information
+          - scan : Network scan
+          - history : Show command history
+          - clear : Clear terminal
+        `.trim();
+      } else if (cmd.startsWith('clear')) {
+        terminalDisplay.innerHTML = '';
+        return 'Terminal cleared';
+      } else {
+        return `Command not found: ${cmd}. Type 'help' for available commands.`;
+      }
     };
 
     submitButton.addEventListener("click", handleCommand);
     commandInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         handleCommand();
+      } else if (event.key === "ArrowUp") {
+        // Navigate command history
+        if (commandHistory.length > 0) {
+          if (historyIndex < commandHistory.length - 1) {
+            historyIndex++;
+            commandInput.value = commandHistory[historyIndex];
+          }
+        }
+      } else if (event.key === "ArrowDown") {
+        // Navigate command history
+        if (historyIndex > 0) {
+          historyIndex--;
+          commandInput.value = commandHistory[historyIndex];
+        } else if (historyIndex === 0) {
+          historyIndex = -1;
+          commandInput.value = '';
+        }
       }
     });
 
     commandInput.focus();
+
+    // Update command history display
+    const updateCommandHistory = () => {
+      historyItems.innerHTML = '';
+      commandHistory.slice(0, 10).forEach((cmd, index) => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        item.textContent = cmd;
+        item.addEventListener('click', () => {
+          commandInput.value = cmd;
+          commandInput.focus();
+        });
+        historyItems.appendChild(item);
+      });
+    };
+
+    // Toggle command history visibility
+    terminalDisplay.addEventListener('click', (e) => {
+      if (e.target.closest('.terminal') && !e.target.closest('.history-item')) {
+        e.currentTarget.classList.toggle('show-history');
+      }
+    });
 
     const windows = document.querySelectorAll(".window");
     windows.forEach((panel) => {
@@ -625,13 +978,13 @@
     const htopBody = document.getElementById("htop-body");
 
     const processes = [
-      { name: "gridd", pid: 3021 },
-      { name: "render-daemon", pid: 8421 },
-      { name: "lightcycle", pid: 1888 },
-      { name: "io-mapper", pid: 443 },
-      { name: "memcache", pid: 772 },
-      { name: "solar-sailor", pid: 912 },
-      { name: "recognizer", pid: 667 }
+      { name: "gridd", pid: 3021, cpu: 23.4, mem: 12.8 },
+      { name: "render-daemon", pid: 8421, cpu: 15.2, mem: 8.7 },
+      { name: "lightcycle", pid: 1888, cpu: 8.9, mem: 5.4 },
+      { name: "io-mapper", pid: 443, cpu: 31.7, mem: 15.3 },
+      { name: "memcache", pid: 772, cpu: 12.1, mem: 23.6 },
+      { name: "solar-sailor", pid: 912, cpu: 4.5, mem: 2.1 },
+      { name: "recognizer", pid: 667, cpu: 19.3, mem: 7.9 }
     ];
 
     const randomUsage = () => Number((Math.random() * 100).toFixed(1));
